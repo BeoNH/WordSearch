@@ -21,10 +21,16 @@ export class GameManager extends Component {
             ['A', 'N', 'I', 'M', 'A', 'L', 'D', 'A', 'N', 'D']
         ],
         // các đáp án
-        answers: ["ELEPHANT", "DOG", "BIRD", "HORSE", "KANGAROO"],
+        answers: ["ELEPHANT", "DOG", "BIRD", "HORSE", "KANGA ROO"],
         // gợi ý
-        hints: ["con vật có ngà ?", "con vật trung thành ?", "con vật biết bay ?", "con vật kéo xe ?", "con vật nhảy cao ?"]
+        hints: ["con vật có ngà ?", "con vật trung thành ?", "con vật biết bay ?", "con vật kéo xe ?", "con vật nhảy cao ?"],
     };
+    public static timeLimit: number = 120; // Thời gian chơi
+    public static initScore: number = 1000; // Điểm ban đầu
+    public static bonusScore: number = 500; // Điểm cộng thêm khi tìm được từ
+    public static hintScore: number = -300; // Điểm trừ khi dùng gợi ý
+    public static letterScore: number = -200; // Điểm trừ khi lật chữ cái
+    public static readScore: number = -400; // Điểm trừ khi nghe từ
 }
 
 
