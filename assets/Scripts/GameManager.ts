@@ -3,8 +3,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass('GameManager')
 export class GameManager extends Component {
-    // data mẫu
-    public static Toppic = [`Animals`, `Fruits`, `Vehicle`];
+
+    public static Toppic = [`Animals`, `Fruits`, `Vehicle`, `Food`, `School`, `Technology`];
 
     public static data = {
         // bảng các ký tự
@@ -25,6 +25,7 @@ export class GameManager extends Component {
         // gợi ý
         hints: ["con vật có ngà ?", "con vật trung thành ?", "con vật biết bay ?", "con vật kéo xe ?", "con vật nhảy cao ?"],
     };
+
     public static timeLimit: number = 120; // Thời gian chơi
     public static initScore: number = 1000; // Điểm ban đầu
     public static bonusScore: number = 500; // Điểm cộng thêm khi tìm được từ
