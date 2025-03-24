@@ -1,4 +1,7 @@
 import { _decorator, Component, Label, Node } from 'cc';
+import { PopupSettingLevel } from './PopupSettingLevel';
+import { MenuControler } from './MenuControler';
+import { PopupGameOver } from './PopupGameOver';
 const { ccclass, property } = _decorator;
 
 @ccclass('UIControler')
@@ -11,28 +14,24 @@ export class UIControler extends Component {
     // private popupRank: Node = null;
     // @property({ type: Node, tooltip: "Lịch sử" })
     // private popupHistory: Node = null;
-
     @property({ type: Node, tooltip: "Cài đặt cấp độ chơi" })
     private popupSettingLevel: Node = null;
-    // @property({ type: Node, tooltip: "Xong game" })
-    // private popupGameOver: Node = null;
-    // @property({ type: Node, tooltip: "Thoát game" })
-    // private popupOutGame: Node = null;;
+
+    @property({ type: Node, tooltip: "Xong game" })
+    private popupGameOver: Node = null;
+    @property({ type: Node, tooltip: "Thoát game" })
+    private popupOutGame: Node = null;;
 
     @property({ type: Node, tooltip: "UI Mẫ lỗi Login" })
     private alertError: Node = null;
-
-    private isCallBack: Function = null;
 
     protected onLoad(): void {
         UIControler.instance = this;
         this.onClose();
     }
 
-    onOpen(e: any, str: string, cb?: () => void, num?: number) {
-        if (num !== undefined) {
-            this.calculateRound(str, num);
-        }
+    onOpen(e: any, str: string, num?: number) {
+        this.onClose();
 
         switch (str) {
             // case `info`:
@@ -48,14 +47,24 @@ export class UIControler extends Component {
             //     break;
             case `Level`:
                 this.popupSettingLevel.active = true;
-                this.isCallBack = cb;
+                const settingData = MenuControler.Instance.getSettingLevelData();
+                this.popupSettingLevel.getComponent(PopupSettingLevel).initSettingList(
+                    settingData.topics,
+                    settingData.currentTopic,
+                    settingData.currentLevel
+                );
                 break;
-            // case `over`:
-            //     this.popupGameOver.active = true;
-            //     break;
-            // case `out`:
-            //     this.popupOutGame.active = true;
-            //     break;
+            case `over`:
+                this.popupGameOver.active = true;
+                this.popupGameOver.getComponent(PopupGameOver).showGameOver();
+                break;
+            case `out`:
+                this.popupOutGame.active = true;
+                let scoreLabel = this.popupOutGame.getChildByPath('content/Score/numScore')?.getComponent(Label);
+                if (scoreLabel) {
+                    scoreLabel.string = num.toString();
+                }
+                break;
         }
     }
 
@@ -64,31 +73,10 @@ export class UIControler extends Component {
         // this.popupRank.active = false;
         // this.popupHistory.active = false;
         this.popupSettingLevel.active = false;
-        // this.popupGameOver.active = false;
-        // this.popupOutGame.active = false;
+        this.popupGameOver.active = false;
+        this.popupOutGame.active = false;
     }
 
-    onTrue() {
-        if (this.isCallBack) {
-            this.isCallBack();
-            this.isCallBack = null;
-        }
-    }
-
-    private calculateRound(txt: string, num: number) {
-        let scoreLabel: Label = null;
-        // switch (txt) {
-        //     case 'out':
-        //         scoreLabel = this.popupOutGame.getChildByPath('content/Score/numScore')?.getComponent(Label);
-        //         break;
-        //     case 'over':
-        //         scoreLabel = this.popupGameOver.getChildByPath('content/Score/numScore')?.getComponent(Label);
-        //         break;
-        // }
-        if (scoreLabel) {
-            scoreLabel.string = num.toString();
-        }
-    }
 
     onMess(txt: string) {
         this.alertError.active = true;

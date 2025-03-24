@@ -1,5 +1,4 @@
-import { _decorator, Component, Label, Node, Sprite, resources, SpriteFrame } from 'cc';
-import { PopupSettingLevel } from './PopupSettingLevel';
+import { _decorator, Component, Label, Node, Sprite, resources, SpriteFrame} from 'cc';
 import { GameManager } from './GameManager';
 const { ccclass, property } = _decorator;
 
@@ -7,20 +6,21 @@ const { ccclass, property } = _decorator;
 export class MenuControler extends Component {
     public static Instance: MenuControler;
 
-    @property({ type: Label, tooltip: "Tên Chủ đề" })
-    public labelToppic: Label = null;
-    
-    @property({ type: Sprite, tooltip: "Ảnh theo chủ đề" })
-    public imageToppic: Sprite = null;
-
     @property({ type: SpriteFrame, tooltip: "Ảnh mặc định khi không tìm thấy ảnh trong Resources" })
     public defaultImage: SpriteFrame = null;
 
     @property({ type: Label, tooltip: "Label hiển thị level" })
     public labelLevel: Label = null;
 
+    @property({ type: Label, tooltip: "Tên Chủ đề" })
+    public labelToppic: Label = null;
+    
+    @property({ type: Sprite, tooltip: "Ảnh theo chủ đề" })
+    public imageToppic: Sprite = null;
+
+
     private numToppic: number = 0;
-    private currentLevelIndex: number = 0; // Thêm biến để lưu chỉ số level hiện tại
+    private numLevel: number = 0;
     
     /** Mảng lưu trữ thông tin về các chủ đề (tên và ảnh) */
     private topics: { name: string, image: SpriteFrame }[] = [];
@@ -86,45 +86,35 @@ export class MenuControler extends Component {
      * Cập nhật hiển thị level từ GameManager
      */
     private updateLevelDisplay(): void {
-        if (this.labelLevel && GameManager.Level[this.currentLevelIndex]) {
-            this.labelLevel.string = GameManager.Level[this.currentLevelIndex];
+        if (this.labelLevel && GameManager.Level[this.numLevel]) {
+            this.labelLevel.string = GameManager.Level[this.numLevel];
         }
     }
-
     /**
-     * Mở popup cài đặt level
-     * @param e - Event object chứa node được bấm
+     * Lấy dữ liệu cài đặt level hiện tại
+     * @returns Đối tượng chứa thông tin về topics, topic và level hiện tại
      */
-    public openSettingLevel(e: any): void {
-        const targetNode = e.target;
-        if (!targetNode) return;
-
-        const popupSetting = targetNode.getComponent(PopupSettingLevel);
-        if (!popupSetting) {
-            console.error('Node không có component PopupSettingLevel');
-            return;
-        }
-
-        popupSetting.node.active = true;
-        popupSetting.loadTopics(this.topics, this.numToppic, GameManager.Level[this.currentLevelIndex]);
+    public getSettingLevelData(): { topics: { name: string, image: any }[], currentTopic: number, currentLevel: number } {
+        return {
+            topics: this.topics,
+            currentTopic: this.numToppic,
+            currentLevel: this.numLevel,
+        };
     }
 
     /**
      * Callback khi người dùng chọn topic và level mới
      * @param newTopic - Chỉ số topic mới
-     * @param newLevel - Level mới
+     * @param newLevel - Chỉ số level mới
      */
-    public onTopicLevelSelected(newTopic: number, newLevel: string): void {
-        // Cập nhật topic nếu có thay đổi
+    public onTopicLevelSelected(newTopic: number, newLevel: number): void {
         if (newTopic !== this.numToppic) {
             this.numToppic = newTopic;
             this.updateTopicDisplay();
         }
 
-        // Cập nhật level nếu có thay đổi
-        const newLevelIndex = GameManager.Level.indexOf(newLevel);
-        if (newLevelIndex !== -1 && newLevelIndex !== this.currentLevelIndex) {
-            this.currentLevelIndex = newLevelIndex;
+        if (newLevel !== this.numLevel) {
+            this.numLevel = newLevel;
             this.updateLevelDisplay();
         }
     }

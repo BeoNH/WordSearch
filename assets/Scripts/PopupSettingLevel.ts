@@ -1,9 +1,19 @@
-import { _decorator, Component, Node, Prefab, instantiate, UITransform, tween, Vec3, Button, Label, Layout } from 'cc';
+import { _decorator, Component, Node, Prefab, instantiate, UITransform, tween, Vec3, Button, Label, Layout, Sprite, Event } from 'cc';
 import { MenuControler } from './MenuControler';
+import { GameManager } from './GameManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('PopupSettingLevel')
 export class PopupSettingLevel extends Component {
+
+    @property({ type: Node, tooltip: "Node cần di chuyển chiều rộng" })
+    private dropDown: Node = null;
+
+    @property({ type: Node, tooltip: "Layout sách các level" })
+    private layoutLevel: Node = null;
+
+    @property({ type: Prefab, tooltip: "Prefab của level item" })
+    private prefabLevel: Prefab = null;
 
     @property({ type: Node, tooltip: "Layout chứa các topic" })
     private layoutTopic: Node = null;
@@ -11,24 +21,23 @@ export class PopupSettingLevel extends Component {
     @property({ type: Prefab, tooltip: "Prefab của topic item" })
     private prefabTopic: Prefab = null;
 
-    @property({ type: Prefab, tooltip: "Prefab của dropdown level" })
-    private dropDown: Prefab = null;
-
-    @property({ type: Node, tooltip: "Node cần di chuyển chiều rộng" })
-    private moveNode: Node = null;
-
-    @property({ type: Button, tooltip: "Nút xác nhận" })
-    private confirmButton: Button = null;
 
     private currentTopic: number = 0;
-    private currentLevel: string = "";
-    private topics: { name: string, image: any }[] = [];
+    private currentLevel: number = 0;
     private selectedTopicNode: Node = null;
     private scaleTween: any = null;
+    private isExpanded: boolean = false; // Trạng thái mở rộng của dropdown
+    private levelNodes: Node[] = []; // Lưu trữ các node level để quản lý
 
-    protected onLoad(): void {
-        // Gắn sự kiện cho nút xác nhận
-        this.confirmButton.node.on(Button.EventType.CLICK, this.onConfirm, this);
+    protected onLoad(): void { }
+
+    // Dọn dẹp các tween khi component bị hủy
+    protected onDisable(): void {
+        if (this.scaleTween) {
+            this.scaleTween.stop();
+        }
+        this.dropDown.getComponent(UITransform).height = 58;
+        this.levelNodes = []
     }
 
     /**
@@ -37,28 +46,42 @@ export class PopupSettingLevel extends Component {
      * @param currentTopic - Chỉ số topic hiện tại
      * @param currentLevel - Level hiện tại
      */
-    public loadTopics(topics: { name: string, image: any }[], currentTopic: number, currentLevel: string): void {
-        this.topics = topics;
+    public initSettingList(topics: { name: string, image: any }[], currentTopic: number, currentLevel: number): void {
         this.currentTopic = currentTopic;
         this.currentLevel = currentLevel;
 
-        // Xóa các topic cũ nếu có
         this.layoutTopic.removeAllChildren();
+        this.layoutLevel.removeAllChildren();
 
-        // Tạo các topic mới
         topics.forEach((topic, index) => {
             const topicNode = instantiate(this.prefabTopic);
-            this.layoutTopic.addChild(topicNode);
+            topicNode.parent = this.layoutTopic;
+            topicNode.getComponentInChildren(Label).string = topic.name;
+            topicNode.getComponentInChildren(Sprite).spriteFrame = topic.image;
+
 
             // Gắn sự kiện click
             topicNode.on(Node.EventType.TOUCH_END, () => this.onTopicSelected(topicNode, index));
 
-            // Nếu là topic đang được chọn, scale to
             if (index === currentTopic) {
                 this.selectedTopicNode = topicNode;
                 this.startScaleAnimation(topicNode);
             }
         });
+
+        GameManager.Level.forEach((level, index) => {
+            const levelNode = instantiate(this.prefabLevel);
+            levelNode.parent = this.layoutLevel;
+            levelNode.name = `${level}`;
+            levelNode.getComponent(Label).string = level;
+
+            levelNode.on(Node.EventType.TOUCH_END, () => {
+                this.onLevelSelect(index);
+                this.onDropDown();
+            });
+            this.levelNodes.push(levelNode);
+        });
+        this.onLevelSelect(currentLevel);
     }
 
     /**
@@ -86,7 +109,7 @@ export class PopupSettingLevel extends Component {
         this.scaleTween = tween(node)
             .repeatForever(
                 tween()
-                    .to(0.5, { scale: new Vec3(1.1, 1.1, 1.1) })
+                    .to(0.5, { scale: new Vec3(1.08, 1.08, 1.08) })
                     .to(0.5, { scale: new Vec3(1, 1, 1) })
             )
             .start();
@@ -104,34 +127,45 @@ export class PopupSettingLevel extends Component {
     }
 
     /**
-     * Di chuyển chiều rộng của node
-     * @param minWidth - Chiều rộng tối thiểu
-     * @param maxWidth - Chiều rộng tối đa
+     * Toggle mở rộng/thu hẹp dropdown
      */
-    public onDropDown(minWidth: number, maxWidth: number): void {
-        const transform = this.moveNode.getComponent(UITransform);
+    public onDropDown(): void {
+        const transform = this.dropDown.getComponent(UITransform);
         if (!transform) return;
 
+        this.isExpanded = !this.isExpanded;
+        const targetWidth = this.isExpanded ? 350 : 58;
+
         tween(transform)
-            .to(0.3, { width: maxWidth })
-            .to(0.3, { width: minWidth })
+            .to(0.3, { height: targetWidth })
             .start();
     }
+
+    /**
+     * Sắp xếp lại các node level theo thứ tự trong GameManager.Level
+     * @param selectedIndex - Index của level được chọn
+     */
+    private onLevelSelect(selectedIndex: number): void {
+        this.currentLevel = selectedIndex;
+        const selectedNode = this.levelNodes.find(node => node.name === GameManager.Level[selectedIndex]);
+        if (!selectedNode) return;
+
+        this.levelNodes = [
+            selectedNode,
+            ...this.levelNodes.filter(node => node !== selectedNode).sort((a, b) => 
+                GameManager.Level.indexOf(a.name) - GameManager.Level.indexOf(b.name)
+            )
+        ];
+
+        this.levelNodes.forEach((node, index) => node.setSiblingIndex(index));
+    }
+
 
     /**
      * Xử lý khi nút xác nhận được bấm
      */
     private onConfirm(): void {
-        // Gọi callback về MenuControler
         MenuControler.Instance.onTopicLevelSelected(this.currentTopic, this.currentLevel);
-        this.node.active = false;
-    }
-
-    protected onDestroy(): void {
-        // Dọn dẹp các tween khi component bị hủy
-        if (this.scaleTween) {
-            this.scaleTween.stop();
-        }
     }
 }
 

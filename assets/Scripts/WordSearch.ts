@@ -1,5 +1,6 @@
-import { _decorator, Color, Component, EventTouch, Input, input, instantiate, Label, Node, Prefab, Sprite, UITransform, Vec3, Graphics } from 'cc';
+import { _decorator, Color, Component, EventTouch, Input, input, instantiate, Label, Node, Prefab, Sprite, UITransform, Vec3, Graphics, tween, v3 } from 'cc';
 import { GameManager } from './GameManager';
+import { UIControler } from './UIControler';
 const { ccclass, property } = _decorator;
 
 /**
@@ -46,19 +47,22 @@ export class WordSearch extends Component {
     public timeLabel: Label = null;
     @property({ type: Label, tooltip: "Label hiển thị điểm số" })
     public scoreLabel: Label = null;
+    @property({ type: Node, tooltip: "Màn chờ lúc chạy hiệu ứng" })
+    public waitMask: Node = null;
 
     // Game State
     private grid: GridCell[][] = [];
     private selectedCells: GridCell[] = [];
     private wordAnswers: string[] = [];
     private discoveredWords: boolean[] = [];
-    private remainingTime: number = 0;
-    private currentScore: number = 0;
     private timeInterval: number = null;
     private usedFeatures: UsedFeatures = {
         hints: new Set<number>(),
         sounds: new Set<number>()
     };
+    
+    public remainingTime: number = 0;
+    public currentScore: number = 0;
 
     // Touch State
     private touchStartRow: number = -1;
@@ -73,11 +77,6 @@ export class WordSearch extends Component {
     onLoad() {
         WordSearch.Instance = this;
         speechSynthesis.getVoices();
-        this.initGame();
-    }
-
-    onDestroy() {
-        this.unregisterEvents();
     }
 
     // Initialization Methods
@@ -99,6 +98,8 @@ export class WordSearch extends Component {
         this.selectionStep = 0;
         this.usedFeatures.hints.clear();
         this.usedFeatures.sounds.clear();
+        this.waitMask.active = false;
+        this._eventListenersInitialized = false;
         if (this.timeInterval) {
             clearInterval(this.timeInterval);
             this.timeInterval = null;
@@ -161,7 +162,7 @@ export class WordSearch extends Component {
 
         const randomIndex = Math.floor(Math.random() * availableHints.length);
         const hintIndex = GameManager.data.hints.indexOf(availableHints[randomIndex]);
-        
+
         // Cập nhật điểm nếu là lần đầu sử dụng gợi ý này
         if (!this.usedFeatures.hints.has(hintIndex)) {
             this.updateScore(GameManager.hintScore);
@@ -355,9 +356,9 @@ export class WordSearch extends Component {
         this.selectionStep = Math.max(Math.abs(dx), Math.abs(dy));
 
         if (dx === 0 || dy === 0) {
-            lineLength = this.selectionStep * cellSize + cellSize;
+            lineLength = this.selectionStep * cellSize + cellSize * 2 / 3;
         } else if (Math.abs(dx) === Math.abs(dy)) {
-            lineLength = Math.sqrt(2) * this.selectionStep * cellSize + cellSize;
+            lineLength = Math.sqrt(2) * this.selectionStep * cellSize + cellSize * 2 / 3;
         } else {
             return;
         }
@@ -378,7 +379,6 @@ export class WordSearch extends Component {
         else if (dx < 0 && dy < 0) { this.selectionDirection = 'diagonal-up-left'; angle = 135; } // Kéo chéo lên trái
         else if (dx > 0 && dy > 0) { this.selectionDirection = 'diagonal-down-right'; angle = -45; } // Kéo chéo xuống phải
         else if (dx < 0 && dy > 0) { this.selectionDirection = 'diagonal-down-left'; angle = -135; } // Kéo chéo xuống trái
-        console.log(dx, dy, this.selectionDirection);
 
         this.updateSelectionLine(this.activeSelectionLine, lineLength, angle);
     }
@@ -464,6 +464,66 @@ export class WordSearch extends Component {
     }
 
     /**
+     * Hiệu ứng chữ di chuyển từ ô chữ xuống ô đáp án
+     */
+    private showWordMoveEffect(selectedCells: GridCell[], answerIndex: number, cb: Function): void {
+        const answerNode = this.answerList.children[answerIndex];
+        const answerLabel = answerNode.getChildByPath('Label').getComponent(Label);
+        const targetPos = answerLabel.node.getWorldPosition();
+
+        this.waitMask.active = true;
+
+        // Tạo các node chữ cái và di chuyển
+        selectedCells.forEach((cell, index) => {
+            const letterNode = new Node("MovingLetter");
+            letterNode.parent = this.node;
+            letterNode.setWorldPosition(cell.node.getWorldPosition());
+
+            // Tạo Label cho chữ cái
+            const letterLabel = letterNode.addComponent(Label);
+            letterLabel.string = cell.letter;
+            letterLabel.fontSize = 60;
+            letterLabel.lineHeight = 80;
+            letterLabel.isBold = true;
+            letterLabel.enableOutline = true;
+            letterLabel.outlineColor = new Color(0, 0, 0);
+            letterLabel.enableShadow = true;
+            letterLabel.shadowColor = new Color(56, 56, 56);
+
+            // Tính toán vị trí mục tiêu
+            const targetX = targetPos.x + (index - selectedCells.length / 2) * 45;
+            const targetY = targetPos.y;
+
+            // Tạo hiệu ứng di chuyển
+            tween(letterNode)
+                .delay(index * 0.1) // Delay theo thứ tự chữ cái
+                .to(0.5, { 
+                    worldPosition: new Vec3(targetX, targetY, 0),
+                    scale: new Vec3(1.2, 1.2, 1.2)
+                })
+                .to(0.2, { 
+                    scale: new Vec3(1, 1, 1)
+                })
+                .call(() => {
+                    if (index === selectedCells.length - 1) {
+                        // Khi chữ cái cuối cùng đến đích, hiển thị từ hoàn chỉnh
+                        answerLabel.string = this.wordAnswers[answerIndex];
+                        // Xóa các node chữ cái di chuyển
+                        this.node.children.forEach(child => {
+                            if (child.name === "MovingLetter") {
+                                child.destroy();
+                            }
+                        });
+
+                        this.waitMask.active = false;
+                        cb();
+                    }
+                })
+                .start();
+        });
+    }
+
+    /**
      * Kiểm tra từ vừa kéo có khớp với đáp án không và cập nhật UI
      */
     checkSelectedWord(): void {
@@ -491,14 +551,20 @@ export class WordSearch extends Component {
             if (this.discoveredWords[i]) continue;
 
             if (formattedAnswers[i] === forwardWord || formattedAnswers[i] === backwardWord) {
-                const answerLabel = this.answerList.children[i].getChildByPath('Label').getComponent(Label);
-                answerLabel.string = this.wordAnswers[i];
-
                 this.activeSelectionLine.active = true;
-                
+
                 // Đánh dấu đã tìm thấy và cập nhật điểm
                 this.discoveredWords[i] = true;
                 this.updateScore(GameManager.bonusScore);
+
+                // Hiển thị hiệu ứng chữ di chuyển
+                this.showWordMoveEffect(this.selectedCells, i,()=>{
+                    // Kiểm tra nếu đã tìm hết tất cả các từ
+                    if (this.discoveredWords.every(found => found)) {
+                        this.endGame();
+                    }
+                });
+
                 break;
             }
         }
@@ -544,7 +610,7 @@ export class WordSearch extends Component {
      * Thay đổi thông số dragLine
      */
     updateSelectionLine(line: Node, length: number, angle: number) {
-        line.getComponent(UITransform).setContentSize(length, 50);
+        line.getComponent(UITransform).setContentSize(length, 60);
         line.angle = angle;
     }
 
@@ -583,6 +649,7 @@ export class WordSearch extends Component {
         const newScore = this.currentScore + number;
         this.currentScore = newScore >= 0 ? newScore : 0;
         this.updateScoreDisplay();
+        this.showBonusEffect(number);
 
         // Kết thúc game nếu điểm về 0
         if (this.currentScore <= 0) {
@@ -593,8 +660,7 @@ export class WordSearch extends Component {
     /**
      * Kết thúc game
      */
-    private endGame() {
-        
+    private endGame(): void {
         // Hủy timer
         if (this.timeInterval) {
             clearInterval(this.timeInterval);
@@ -603,16 +669,118 @@ export class WordSearch extends Component {
 
         // Vô hiệu hóa tương tác
         this.unregisterEvents();
-        
+
         // Ẩn các nút gợi ý và chữ cái
         this.itemShowKeyList.children.forEach(button => button.active = false);
-        
+
         // Ẩn đường kéo đang hiển thị nếu có
         if (this.activeSelectionLine) {
             this.activeSelectionLine.active = false;
         }
 
-        console.log(`Game Over! Final Score: ${this.currentScore}`);
-        // TODO: Thêm logic kết thúc game ở đây
+        // Hiển thị popup game over
+        UIControler.instance.onOpen(null, 'over', this.currentScore);
+    }
+
+    /**
+     * Reset lại game từ đầu
+     */
+    public resetGame(): void {
+        this.initGame();
+    }
+
+    /**
+     * Thoát game và hiển thị popup xác nhận
+     */
+    public onOutGame(): void {
+        UIControler.instance.onOpen(null, 'out', this.currentScore);
+    }
+
+    /**
+     * Reset tất cả về mặc định khi lớp bị tắt
+     */
+    protected onDisable(): void {
+        // Hủy timer
+        if (this.timeInterval) {
+            clearInterval(this.timeInterval);
+            this.timeInterval = null;
+        }
+
+        // Vô hiệu hóa tương tác
+        this.unregisterEvents();
+
+        // Reset các biến trạng thái
+        this.grid = [];
+        this.selectedCells = [];
+        this.wordAnswers = [];
+        this.discoveredWords = [];
+        this.remainingTime = 0;
+        this.currentScore = 0;
+        this.touchStartRow = -1;
+        this.touchStartCol = -1;
+        this.selectionDirection = null;
+        this.touchStartPosition = null;
+        this.selectionStep = 0;
+        this.activeSelectionLine = null;
+        this._eventListenersInitialized = false;
+
+        // Reset các tính năng đã sử dụng
+        this.usedFeatures = {
+            hints: new Set<number>(),
+            sounds: new Set<number>()
+        };
+
+        // Ẩn tất cả các node
+        if (this.wordGrid) this.wordGrid.removeAllChildren();
+        if (this.selectionLines) this.selectionLines.children.forEach(line => line.active = false);
+        if (this.itemShowKeyList) this.itemShowKeyList.children.forEach(button => button.active = true);
+        if (this.answerList) this.answerList.children.forEach(child => {
+            const label = child.getChildByPath('Label')?.getComponent(Label);
+            if (label) label.string = '';
+        });
+
+        // Reset các label hiển thị
+        if (this.timeLabel) this.timeLabel.string = '0s';
+        if (this.scoreLabel) this.scoreLabel.string = '0';
+        if (this.hintLabel) this.hintLabel.string = '';
+    }
+
+
+    // Hiệu ứng cộng điểm
+    private showBonusEffect(bonus: number, target?: Node) {
+        // Cache node vị trí ban đầu
+        const OFFSET_Y1 = 80;
+        const OFFSET_Y2 = 40;
+        const startPos = target ? target.getWorldPosition().clone() : this.scoreLabel.node.getWorldPosition().clone();
+
+        // Tính toán vị trí khởi tạo và vị trí mục tiêu dựa theo bonus
+        const initPos = bonus >= 0 ? startPos.clone().add(v3(0, -OFFSET_Y1, 0)) : startPos.clone().add(v3(0, -OFFSET_Y2, 0));
+        const targetPos = startPos.clone().add(v3(0, bonus >= 0 ? -OFFSET_Y2 : -OFFSET_Y1, 0));
+
+
+        // Tạo node bonus và gán parent
+        const bonusNode = new Node("BonusEffect");
+        bonusNode.parent = this.node;
+        bonusNode.setWorldPosition(initPos);
+
+        // Tạo Label cho node bonus
+        const bonusLabel = bonusNode.addComponent(Label);
+        bonusLabel.string = bonus >= 0 ? `+${bonus}` : `${bonus}`;
+        bonusLabel.color = bonus >= 0 ? new Color(0, 255, 0) : new Color(255, 0, 0);
+        bonusLabel.fontSize = 40;
+        bonusLabel.lineHeight = 50;
+        bonusLabel.isBold = true;
+        bonusLabel.enableOutline = true;
+        bonusLabel.outlineColor = new Color(255, 255, 255);
+        bonusLabel.enableShadow = true;
+        bonusLabel.shadowColor = new Color(56, 56, 56);
+
+        // Di chuyển node bonus từ vị trí khởi tạo đến vị trí mục tiêu
+        tween(bonusNode)
+            .to(0.8, { worldPosition: targetPos })
+            .call(() => {
+                bonusNode.destroy();
+            })
+            .start();
     }
 }

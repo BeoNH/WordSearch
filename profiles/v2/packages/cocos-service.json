@@ -1,0 +1,26 @@
+{
+  "__version__": "3.0.7",
+  "builder": {
+    "options": {
+      "web-desktop": {
+        "configID": "afdacc",
+        "services": []
+      },
+      "web-mobile": {
+        "configID": "afdacc",
+        "services": []
+      }
+    },
+    "taskOptionsMap": {
+      "1742803712040": {
+        "configID": "afdacc",
+        "services": []
+      }
+    },
+    "__version__": "1.3.7"
+  },
+  "builder-options": {
+    "configID": "afdacc",
+    "services": []
+  }
+}

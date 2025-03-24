@@ -3,6 +3,7 @@ import { DEBUG } from 'cc/env';
 import { UIControler } from './UIControler';
 import { GameManager } from './GameManager';
 import { MenuControler } from './MenuControler';
+import { WordSearch } from './WordSearch';
 const { ccclass, property } = _decorator;
 
 
@@ -53,6 +54,7 @@ export class GameControler extends Component {
     openGame() {
         this.sceneMenu.active = false;
         this.scenePlay.active = true;
+        WordSearch.Instance.initGame();
 
         // if (this.numTurn <= 0) {
         //     UIControler.instance.onMess(`No turns remaining. \nPlease purchase extra turns to proceed.`);
