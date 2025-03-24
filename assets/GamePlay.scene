@@ -6856,7 +6856,7 @@
         "__id__": 185
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 285
@@ -10440,6 +10440,11 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "layoutTopic": null,
+    "prefabTopic": null,
+    "dropDown": null,
+    "moveNode": null,
+    "confirmButton": null,
     "_id": "f35NzO/f5E35BiewnTbyuD"
   },
   {
@@ -10990,7 +10995,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "bgLabel",
+    "_name": "bgToppic",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -11946,6 +11951,9 @@
     "defaultImage": {
       "__uuid__": "57520716-48c8-4a19-8acf-41c9f8777fb0@f9941",
       "__expectedType__": "cc.SpriteFrame"
+    },
+    "labelLevel": {
+      "__id__": 171
     },
     "_id": "1ds0vkfp9OtYo9gAMcdUU3"
   },

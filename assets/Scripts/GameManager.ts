@@ -4,7 +4,7 @@ const { ccclass, property } = _decorator;
 @ccclass('GameManager')
 export class GameManager extends Component {
 
-    public static Toppic = [`Animals`, `Fruits`, `Vehicle`, `Food`, `School`, `Technology`];
+    public static Level = [`A1`, `A2`, `B1`, `B2`, `C1`, `C2`];
 
     public static data = {
         // bảng các ký tự
