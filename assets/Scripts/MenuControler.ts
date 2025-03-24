@@ -90,6 +90,7 @@ export class MenuControler extends Component {
             this.labelLevel.string = GameManager.Level[this.numLevel];
         }
     }
+    
     /**
      * Lấy dữ liệu cài đặt level hiện tại
      * @returns Đối tượng chứa thông tin về topics, topic và level hiện tại

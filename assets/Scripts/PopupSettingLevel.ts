@@ -164,7 +164,7 @@ export class PopupSettingLevel extends Component {
     /**
      * Xử lý khi nút xác nhận được bấm
      */
-    private onConfirm(): void {
+    onConfirm(): void {
         MenuControler.Instance.onTopicLevelSelected(this.currentTopic, this.currentLevel);
     }
 }
