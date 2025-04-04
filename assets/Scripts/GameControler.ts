@@ -51,7 +51,10 @@ export class GameControler extends Component {
         // this.remainTurn();
     }
 
-    openGame() {
+    async openGame() {
+        GameManager.getRandomWordSet();
+        GameManager.generateMatrix();
+
         this.sceneMenu.active = false;
         this.scenePlay.active = true;
         WordSearch.Instance.initGame();

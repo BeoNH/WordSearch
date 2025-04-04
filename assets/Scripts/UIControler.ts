@@ -1,6 +1,5 @@
 import { _decorator, Component, Label, Node } from 'cc';
 import { PopupSettingLevel } from './PopupSettingLevel';
-import { MenuControler } from './MenuControler';
 import { PopupGameOver } from './PopupGameOver';
 const { ccclass, property } = _decorator;
 
@@ -47,12 +46,7 @@ export class UIControler extends Component {
             //     break;
             case `Level`:
                 this.popupSettingLevel.active = true;
-                const settingData = MenuControler.Instance.getSettingLevelData();
-                this.popupSettingLevel.getComponent(PopupSettingLevel).initSettingList(
-                    settingData.topics,
-                    settingData.currentTopic,
-                    settingData.currentLevel
-                );
+                this.popupSettingLevel.getComponent(PopupSettingLevel).initSettingList();
                 break;
             case `over`:
                 this.popupGameOver.active = true;

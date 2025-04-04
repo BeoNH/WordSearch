@@ -32,18 +32,20 @@ export class PopupGameOver extends Component {
         // Tính điểm cộng thêm từ thời gian
         const timeBonus = remainingTime * 10;
         
-        this.scheduleOnce(()=>{
-            // Hiển thị điểm cộng thêm
-            this.bonusScrolling.to(timeBonus);
-        },1)
-
-        // Chạy hiệu ứng điểm cộng thêm
-        this.scoreScrolling.to(remainingScore, 0.3, () => {
-            // Chạy hiệu ứng điểm
-            this.scheduleOnce(() => {
-                this.scoreScrolling.to(remainingScore + timeBonus);
-            }, 1.5);
-        });
+        if(remainingScore > 0){
+            this.scheduleOnce(()=>{
+                // Hiển thị điểm cộng thêm
+                this.bonusScrolling.to(timeBonus);
+            },1)
+    
+            // Chạy hiệu ứng điểm cộng thêm
+            this.scoreScrolling.to(remainingScore, 0.3, () => {
+                // Chạy hiệu ứng điểm
+                this.scheduleOnce(() => {
+                    this.scoreScrolling.to(remainingScore + timeBonus);
+                }, 1.5);
+            });
+        }
     }
 }
 

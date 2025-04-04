@@ -42,18 +42,16 @@ export class PopupSettingLevel extends Component {
 
     /**
      * Load và hiển thị các topic
-     * @param topics - Mảng chứa thông tin các topic
-     * @param currentTopic - Chỉ số topic hiện tại
-     * @param currentLevel - Level hiện tại
      */
-    public initSettingList(topics: { name: string, image: any }[], currentTopic: number, currentLevel: number): void {
-        this.currentTopic = currentTopic;
-        this.currentLevel = currentLevel;
+    public initSettingList(): void {
+        const settingData = MenuControler.Instance.getSettingLevelData();
+        this.currentTopic = settingData.currentTopic;
+        this.currentLevel = settingData.currentLevel;
 
         this.layoutTopic.removeAllChildren();
         this.layoutLevel.removeAllChildren();
 
-        topics.forEach((topic, index) => {
+        settingData.topics.forEach((topic, index) => {
             const topicNode = instantiate(this.prefabTopic);
             topicNode.parent = this.layoutTopic;
             topicNode.getComponentInChildren(Label).string = topic.name;
@@ -63,7 +61,7 @@ export class PopupSettingLevel extends Component {
             // Gắn sự kiện click
             topicNode.on(Node.EventType.TOUCH_END, () => this.onTopicSelected(topicNode, index));
 
-            if (index === currentTopic) {
+            if (index === settingData.currentTopic) {
                 this.selectedTopicNode = topicNode;
                 this.startScaleAnimation(topicNode);
             }
@@ -81,7 +79,7 @@ export class PopupSettingLevel extends Component {
             });
             this.levelNodes.push(levelNode);
         });
-        this.onLevelSelect(currentLevel);
+        this.onLevelSelect(this.currentLevel);
     }
 
     /**

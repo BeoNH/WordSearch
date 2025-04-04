@@ -333,57 +333,74 @@ export class WordSearch extends Component {
     onTouchEnd(event: EventTouch) {
         this.selectedCells = [];
         if (this.selectionDirection) {
+            const len = this.grid.length;
             switch (this.selectionDirection) {
                 case 'vertical-up':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let r = this.touchStartRow - i;
-                        this.selectedCells.push(this.grid[r][this.touchStartCol]);
+                        if (r >= 0 && r < len) {
+                            this.selectedCells.push(this.grid[r][this.touchStartCol]);
+                        }
                     }
                     break;
                 case 'vertical-down':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let r = this.touchStartRow + i;
-                        this.selectedCells.push(this.grid[r][this.touchStartCol]);
+                        if (r >= 0 && r < len) {
+                            this.selectedCells.push(this.grid[r][this.touchStartCol]);
+                        }
                     }
                     break;
                 case 'horizontal-right':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let c = this.touchStartCol + i;
-                        this.selectedCells.push(this.grid[this.touchStartRow][c]);
+                        if (c >= 0 && c < len) {
+                            this.selectedCells.push(this.grid[this.touchStartRow][c]);
+                        }
                     }
                     break;
                 case 'horizontal-left':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let c = this.touchStartCol - i;
-                        this.selectedCells.push(this.grid[this.touchStartRow][c]);
+                        if (c >= 0 && c < len) {
+                            this.selectedCells.push(this.grid[this.touchStartRow][c]);
+                        }
                     }
                     break;
                 case 'diagonal-up-right':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let r = this.touchStartRow - i;
                         let c = this.touchStartCol + i;
-                        this.selectedCells.push(this.grid[r][c]);
+                        if (r >= 0 && r < len && c >= 0 && c < len) {
+                            this.selectedCells.push(this.grid[r][c]);
+                        }
                     }
                     break;
                 case 'diagonal-up-left':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let r = this.touchStartRow - i;
                         let c = this.touchStartCol - i;
-                        this.selectedCells.push(this.grid[r][c]);
+                        if (r >= 0 && r < len && c >= 0 && c < len) {
+                            this.selectedCells.push(this.grid[r][c]);
+                        }
                     }
                     break;
                 case 'diagonal-down-right':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let r = this.touchStartRow + i;
                         let c = this.touchStartCol + i;
-                        this.selectedCells.push(this.grid[r][c]);
+                        if (r >= 0 && r < len && c >= 0 && c < len) {
+                            this.selectedCells.push(this.grid[r][c]);
+                        }
                     }
                     break;
                 case 'diagonal-down-left':
                     for (let i = 0; i <= this.selectionStep; i++) {
                         let r = this.touchStartRow + i;
                         let c = this.touchStartCol - i;
-                        this.selectedCells.push(this.grid[r][c]);
+                        if (r >= 0 && r < len && c >= 0 && c < len) {
+                            this.selectedCells.push(this.grid[r][c]);
+                        }
                     }
                     break;
             }
@@ -394,13 +411,6 @@ export class WordSearch extends Component {
         this.checkSelectedWord();
         this.activeSelectionLine = null;
         this.resetEventTouch();
-    }
-
-    /**
-     * Reset lại game từ đầu
-     */
-    public resetGame(): void {
-        this.initGame();
     }
 
     /**
@@ -466,6 +476,12 @@ export class WordSearch extends Component {
 
             if (formattedAnswers[i] === forwardWord || formattedAnswers[i] === backwardWord) {
                 this.activeSelectionLine.active = true;
+
+                this.onReadWord(formattedAnswers[i]);
+                if (!this.usedFeatures.sounds.has(i)) {
+                    this.usedFeatures.sounds.add(i);
+                    console.log(this.usedFeatures.sounds,i);
+                }
 
                 this.discoveredWords[i] = true;
                 this.updateScore(GameManager.bonusScore);
@@ -538,11 +554,11 @@ export class WordSearch extends Component {
      * Đọc đáp án trong ô chữ
      */
     onReadLetter(e, answerIndex: number) {
-        if (this.discoveredWords[answerIndex]) return;
+        // if (this.discoveredWords[answerIndex]) return;
 
-        if (!this.usedFeatures.sounds.has(answerIndex)) {
+        if (!this.usedFeatures.sounds.has(Number(answerIndex))) {
             this.updateScore(GameManager.readScore);
-            this.usedFeatures.sounds.add(answerIndex);
+            this.usedFeatures.sounds.add(Number(answerIndex));
         }
 
         const answer = this.wordAnswers[answerIndex];
@@ -555,7 +571,7 @@ export class WordSearch extends Component {
     onReadWord(txt: string) {
         if (window.speechSynthesis) {
             const msg = new SpeechSynthesisUtterance(txt);
-            msg.voice = speechSynthesis.getVoices()[6];
+            msg.voice = speechSynthesis.getVoices()[0];
             msg.lang = 'en-US';
             msg.volume = 1;
             msg.rate = 0.8;
@@ -723,7 +739,7 @@ export class WordSearch extends Component {
         for (const line of this.selectionLines.children) {
             if (!line.active) {
                 line.active = true;
-                line.getComponent(UITransform).setContentSize(0, 50);
+                line.getComponent(UITransform).setContentSize(0, 60);
                 line.angle = 0;
                 return line;
             }
