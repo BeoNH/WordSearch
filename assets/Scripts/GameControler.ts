@@ -4,6 +4,7 @@ import { UIControler } from './UIControler';
 import { GameManager } from './GameManager';
 import { MenuControler } from './MenuControler';
 import { WordSearch } from './WordSearch';
+import { APIManager } from './APIManager';
 const { ccclass, property } = _decorator;
 
 
@@ -33,7 +34,7 @@ export class GameControler extends Component {
         this.sceneMenu.active = true;
         this.scenePlay.active = false;
 
-        // this.loginBatta();
+        this.loginBatta();
     }
 
     onDestroy() {
@@ -82,22 +83,22 @@ export class GameControler extends Component {
         // });
     }
 
-    // // Đăng nhập Batta lấy thông tin
-    // private loginBatta() {
-    //     const url = `/imageToWord/login`;
-    //     const data = {
-    //         "token": APIManager.urlParam(`token`),
-    //     };
-    //     APIManager.requestData(`POST`, url, data, res => {
-    //         console.log("Login_info: ", res)
-    //         if (!res) {
-    //             UIControler.instance.onMess(`Error: ${url} => ${res}`);
-    //             return;
-    //         }
-    //         APIManager.userDATA = res;
-    //         this.remainTurn();
-    //     });
-    // }
+    // Đăng nhập Batta lấy thông tin
+    private loginBatta() {
+        const url = `/word-search/login`;
+        const data = {
+            "token": APIManager.urlParam(`token`),
+        };
+        APIManager.requestData(url, data, res => {
+            console.log("Login_info: ", res)
+            if (!res) {
+                UIControler.instance.onMess(`Error: ${url} => ${res}`);
+                return;
+            }
+            APIManager.userDATA = res;
+            // this.remainTurn();
+        });
+    }
 
     // // Cập nhật thông tin số lượt
     // private remainTurn(callback?: (remainTurn: number) => void): void {

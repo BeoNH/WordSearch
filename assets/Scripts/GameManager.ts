@@ -74,74 +74,74 @@ export class GameManager extends Component {
         ],
         "Fruits": [
             {
-                answers: ["PEAR", "PLUM", "APRICOT", "FIG", "POMEGRANATE"],
-                hints: ["Bell-shaped fruit?", "Small purple fruit?", "Yellow fruit like a peach?", "Small sweet Mediterranean fruit?", "Red fruit with many seeds?"]
+                answers: ["JACKFRUIT", "STARFRUIT", "APRICOT", "BANANA", "PEAR"],
+                hints: ["Large tropical fruit?", "Star-shaped fruit?", "Yellow fruit like a peach?", "Long, curved, yellow fruit?", "Bell-shaped fruit?"]
             },
             {
-                answers: ["DRAGON FRUIT", "DURIAN", "LYCHEE", "JACKFRUIT", "RAMBUTAN"],
-                hints: ["Pink-skinned fruit with white flesh?", "Strong-smelling fruit?", "Small sweet fruit with red skin?", "Large tropical fruit?", "Red hairy fruit?"]
+                answers: ["PERSIMMON", "CLEMENTINE", "DURIAN", "SATSUMA", "PLUM"],
+                hints: ["Soft orange autumn fruit?", "Sweet seedless orange?", "Strong-smelling fruit?", "Seedless citrus that's super easy to peel?", "Small purple fruit?"]
             },
             {
-                answers: ["TANGERINE", "CLEMENTINE", "GUAVA", "PASSION FRUIT", "STARFRUIT"],
-                "hints": ["Small easy-to-peel orange?", "Sweet seedless orange?", "Fragrant tropical fruit?", "Sour fruit with many seeds?", "Star-shaped fruit?"]
+                answers: ["RAMBUTAN", "GUAVA", "LYCHEE", "MANGO", "FIG"],
+                hints: ["Red hairy fruit?", "Fragrant tropical fruit?", "Small sweet fruit with red skin?", "Tropical fruit with smooth, golden skin?", "Small sweet Mediterranean fruit?"]
             },
             {
-                answers: ["DATE", "OLIVE", "PERSIMMON", "QUINCE", "GOOSEBERRY"],
-                hints: ["Sweet dried Middle Eastern fruit?", "Small fruit used for oil?", "Soft orange autumn fruit?", "Sour pear-like fruit?", "Small sour green berry?"]
+                answers: ["GOOSEBERRY", "QUINCE", "ORANGE", "OLIVE", "COCONUT"],
+                hints: ["Small sour green berry?", "Sour pear-like fruit?", "Citrus fruit with juicy segments?", "Small fruit used for oil?", "Hard-shelled tropical treat?"]
             }
         ],
         "School": [
             {
-                answers: ["BACKPACK", "RULER", "ERASER", "MARKER", "CALCULATOR"],
-                hints: ["Item for carrying things?", "Tool for measuring length?", "Tool for removing writing?", "Pen for writing on a whiteboard?", "Handheld calculating device?"]
+                answers: ["BACKPACK", "CALCULATOR", "MARKER", "RULER", "ERASER"],
+                hints: ["Item for carrying things?", "Handheld calculating device?", "Pen for writing on a whiteboard?", "Tool for measuring length?", "Tool for removing writing?"]
             },
             {
-                answers: ["SCHEDULE", "HOMEWORK", "EXAM", "PROJECT", "LESSON"],
-                hints: ["Timetable?", "Work to be done at home?", "Test of knowledge?", "Academic assignment?", "Teaching session?"]
+                answers: ["SCHEDULE", "HOMEWORK", "PROJECT", "EXAM", "LESSON"],
+                hints: ["Timetable?", "Work to be done at home?", "Academic assignment?", "Test of knowledge?", "Teaching session?"]
             },
             {
-                answers: ["UNIFORM", "LOCKER", "BELL", "TEXTBOOK", "SCHOOLBAG"],
-                hints: ["Required clothing?", "Storage cabinet?", "Signaling device?", "Educational book?", "Bag for carrying school items?"]
+                answers: ["SCHOOLBAG", "TEXTBOOK", "UNIFORM", "LOCKER", "BELL"],
+                hints: ["Bag for carrying school items?", "Educational book?", "Required clothing?", "Storage cabinet?", "Signaling device?"]
             },
             {
-                answers: ["LECTURE", "DETENTION", "RECESS", "ASSEMBLY", "FIELD TRIP"],
-                hints: ["Teaching presentation?", "Punishment after school?", "Break time?", "Whole school gathering?", "Educational visit?"]
+                answers: ["DETENTION", "LECTURE", "ASSEMBLY", "FIELD TRIP", "RECESS"],
+                hints: ["Punishment after school?", "Teaching presentation?", "Whole school gathering?", "Educational visit?", "Break time?"]
             }
         ],
         "Technology": [
             {
-                answers: ["HEADPHONES", "CHARGER", "CABLE", "SPEAKER", "WEBCAM"],
-                hints: ["Listening device for ears?", "Device for replenishing battery power?", "Cord for connecting devices?", "Device for playing sound?", "Camera for online video?"]
+                answers: ["HEADPHONES", "CHARGER", "SPEAKER", "WEBCAM", "CABLE"],
+                hints: ["Listening device for ears?", "Device for replenishing battery power?", "Device for playing sound?", "Camera for online video?", "Cord for connecting devices?"]
             },
             {
-                answers: ["CLOUD", "SERVER", "DATABASE", "FIREWALL", "NETWORK"],
-                hints: ["Remote data storage?", "Computer providing services?", "Organized collection of data?", "Security system for computers?", "Interconnected group of computers?"]
+                answers: ["DATABASE", "FIREWALL", "NETWORK", "SERVER", "CLOUD"],
+                hints: ["Organized collection of data?", "Security system for computers?", "Interconnected group of computers?", "Computer providing services?", "Remote data storage?"]
             },
             {
-                answers: ["GAMING", "STREAMING", "CODING", "DEBUGGING", "UPDATING"],
-                hints: ["Playing video games?", "Broadcasting live video?", "Writing computer programs?", "Finding and fixing errors?", "Installing new versions?"]
+                answers: ["STREAMING", "DEBUGGING", "UPDATING", "GAMING", "CODING"],
+                hints: ["Broadcasting live video?", "Finding and fixing errors?", "Installing new versions?", "Playing video games?", "Writing computer programs?"]
             },
             {
-                answers: ["WEARABLE", "SENSOR", "CHIP", "BATTERY", "PROCESSOR"],
-                hints: ["Device worn on the body?", "Device detecting changes?", "Small piece of electronic circuitry?", "Device storing electrical energy?", "Central unit performing calculations?"]
+                answers: ["WEARABLE", "PROCESSOR", "BATTERY", "SENSOR", "CHIP"],
+                hints: ["Device worn on the body?", "Central unit performing calculations?", "Device storing electrical energy?", "Device detecting changes?", "Small piece of electronic circuitry?"]
             }
         ],
         "Vehicle": [
             {
-                answers: ["SCOOTER", "TRAM", "WAGON", "CART", "SKATEBOARD"],
-                hints: ["Small motorbike?", "Electric streetcar?", "Pulled vehicle for goods?", "Wheeled container?", "Board for riding?"]
+                answers: ["SCOOTER", "SKATEBOARD", "TRAM", "WAGON", "CART"],
+                hints: ["Small motorbike?", "Board for riding?", "Electric streetcar?", "Pulled vehicle for goods?", "Wheeled container?"]
             },
             {
                 answers: ["JETSKI", "YACHT", "FERRY", "CANOE", "RAFT"],
                 hints: ["Personal watercraft?", "Luxury boat?", "Boat for transporting people?", "Small boat paddled by hand?", "Floating platform?"]
             },
             {
-                answers: ["PICKUP", "LIMOUSINE", "CONVERTIBLE", "HATCHBACK", "MINIVAN"],
-                hints: ["Truck with an open cargo area?", "Long luxurious car?", "Car with a retractable roof?", "Car with a rear door that opens upwards?", "Small family van?"]
+                answers: ["LIMOUSINE", "CABRIOLET", "HATCHBACK", "PICKUP", "MINIVAN"],
+                hints: ["Long luxurious car?", "Car with a folding roof?", "Car with a rear door that opens upwards?", "Truck with an open cargo area?", "Small family van?"]
             },
             {
-                answers: ["BULLDOZER", "CRANE", "FORKLIFT", "EXCAVATOR", "ROLLER"],
-                hints: ["Earth-moving machine?", "Machine for lifting heavy objects?", "Vehicle for lifting and moving materials?", "Heavy equipment for digging?", "Machine for compacting surfaces?"]
+                answers: ["BULLDOZER", "EXCAVATOR", "FORKLIFT", "CRANE", "ROLLER"],
+                hints: ["Earth-moving machine?", "Heavy equipment for digging?", "Vehicle for lifting and moving materials?", "Machine for lifting heavy objects?", "Machine for compacting surfaces?"]
             }
         ]
     };
@@ -171,6 +171,7 @@ export class GameManager extends Component {
     public static generateMatrix(size: number = 10) {
         // Xử lý các từ có khoảng trắng
         const processedWords = this.data.answers.map(word => word.replace(/\s+/g, ''));
+        console.log("processed: ",processedWords);
 
         // Khởi tạo ma trận rỗng
         const matrix: string[][] = Array(size).fill(null).map(() => Array(size).fill(''));
@@ -198,17 +199,21 @@ export class GameManager extends Component {
 
         // Các hướng có thể đặt từ (ngang, dọc, chéo)
         const directions = [
-            [0, 1],   // ngang
-            [1, 0],   // dọc
-            [1, 1],   // chéo xuống
-            [1, -1]   // chéo lên
+            [0, 1],   // ngang phải
+            [1, 0],   // dọc xuống
+            [1, 1],   // chéo phải xuống
+            [-1, 1],   // chéo phải lên
+            // [0, -1],   // ngang trái
+            // [-1, 0],   // dọc lên
+            // [-1, -1],   // chéo trái xuống
+            // [1, -1],   // chéo trái lên
         ];
 
         // Đặt các từ vào ma trận
         for (const word of processedWords) {
             let placed = false;
             let attempts = 0;
-            const maxAttempts = 100;
+            const maxAttempts = 200;
 
             while (!placed && attempts < maxAttempts) {
                 const direction = directions[Math.floor(Math.random() * directions.length)];

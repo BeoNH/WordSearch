@@ -1,6 +1,7 @@
 import { _decorator, Color, Component, EventTouch, Input, input, instantiate, Label, Node, Prefab, Sprite, UITransform, Vec3, Graphics, tween, v3 } from 'cc';
 import { GameManager } from './GameManager';
 import { UIControler } from './UIControler';
+import { APIManager } from './APIManager';
 const { ccclass, property } = _decorator;
 
 /**
@@ -246,6 +247,7 @@ export class WordSearch extends Component {
         for (let i = 0; i < this.wordAnswers.length; i++) {
             let label = this.answerList.children[i].getChildByPath(`Label`).getComponent(Label);
             label.string = this.convertToUnderscore(this.wordAnswers[i]);
+            label.color = new Color(255, 255, 255);
         }
     }
 
@@ -295,14 +297,17 @@ export class WordSearch extends Component {
         const cellSize = this.getCellSize();
         let lineLength = 0;
 
+        // Chỉ cho phép di chuyển theo 8 hướng: ngang, dọc, chéo
+        if (!((dx === 0 && dy !== 0) || (dy === 0 && dx !== 0) || (Math.abs(dx) === Math.abs(dy)))) {
+            return;
+        }
+
         this.selectionStep = Math.max(Math.abs(dx), Math.abs(dy));
 
         if (dx === 0 || dy === 0) {
             lineLength = this.selectionStep * cellSize + cellSize * 2 / 3;
         } else if (Math.abs(dx) === Math.abs(dy)) {
             lineLength = Math.sqrt(2) * this.selectionStep * cellSize + cellSize * 2 / 3;
-        } else {
-            return;
         }
 
         let endpos = this.grid[row][col].node.getWorldPosition();
@@ -332,7 +337,7 @@ export class WordSearch extends Component {
      */
     onTouchEnd(event: EventTouch) {
         this.selectedCells = [];
-        if (this.selectionDirection) {
+        if (this.selectionDirection && this.selectionStep > 0) {
             const len = this.grid.length;
             switch (this.selectionDirection) {
                 case 'vertical-up':
@@ -480,7 +485,7 @@ export class WordSearch extends Component {
                 this.onReadWord(formattedAnswers[i]);
                 if (!this.usedFeatures.sounds.has(i)) {
                     this.usedFeatures.sounds.add(i);
-                    console.log(this.usedFeatures.sounds,i);
+                    console.log(this.usedFeatures.sounds, i);
                 }
 
                 this.discoveredWords[i] = true;
@@ -497,9 +502,21 @@ export class WordSearch extends Component {
         }
     }
 
+    /**
+     * Hiển thị tất cả đáp án chưa được tìm ra khi kết thúc game
+     */
+    private showAllAnswers(): void {
+        for (let i = 0; i < this.wordAnswers.length; i++) {
+            if (!this.discoveredWords[i]) {
+                const answerLabel = this.answerList.children[i].getChildByPath('Label').getComponent(Label);
+                answerLabel.string = this.wordAnswers[i];
+                answerLabel.color = new Color(255, 80, 80);
+            }
+        }
+    }
 
 
-    
+
     //=============== XỬ LÝ ITEM HỖI TRỢ ===============//
     /**
      * Hiển thị một gợi ý ngẫu nhiên cho từ chưa được tìm thấy
@@ -570,12 +587,12 @@ export class WordSearch extends Component {
      */
     onReadWord(txt: string) {
         if (window.speechSynthesis) {
+            const voices = window.speechSynthesis.getVoices();
             const msg = new SpeechSynthesisUtterance(txt);
-            msg.voice = speechSynthesis.getVoices()[0];
+            msg.voice = voices.find(voice => voice.lang.includes("en-US")) || voices.find(voice => voice.lang.includes("en")) || voices[0];
             msg.lang = 'en-US';
             msg.volume = 1;
             msg.rate = 0.8;
-            msg.pitch = 1;
             window.speechSynthesis.speak(msg);
         } else {
             console.error("SpeechSynthesis không được hỗ trợ trên nền tảng này!");
@@ -692,10 +709,34 @@ export class WordSearch extends Component {
             this.activeSelectionLine.active = false;
         }
 
+        // Hiển thị tất cả đáp án chưa tìm được
+        this.showAllAnswers();
+
         UIControler.instance.onOpen(null, 'over', this.currentScore);
+        this.logSaveScore();
     }
 
+    // Lưu lại điểm lên sever
+    logSaveScore() {
+        const url = `/word-search/saveScore`;
+        const data = {
+            "username": APIManager.userDATA?.username,
+            "score": this.currentScore,
+            "time": this.remainingTime
+        };
+        APIManager.requestData(url, data, res => {
+            console.log("Kết thúc game => Gửi server:", data, res);
+        });
 
+        // Sự kiện BATTA
+        // if (num >= 3000) {
+        //     APIManager.logChallenge(`tetrisPoint3000`, num);
+        // } else if (num >= 2000 && num < 3000) {
+        //     APIManager.logChallenge(`tetrisPoint2000`, num);
+        // } else if (num >= 100) {
+        //     APIManager.logChallenge(`tetrisPoint1000`, num);
+        // }
+    }
 
 
     //=============== CÁC HÀM TIỆN ÍCH ===============//

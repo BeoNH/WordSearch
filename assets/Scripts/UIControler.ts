@@ -7,8 +7,8 @@ const { ccclass, property } = _decorator;
 export class UIControler extends Component {
     public static instance: UIControler = null;
 
-    // @property({ type: Node, tooltip: "Luật chơi" })
-    // private popupInfo: Node = null;
+    @property({ type: Node, tooltip: "Luật chơi" })
+    private popupInfo: Node = null;
     // @property({ type: Node, tooltip: "Bảng xếp hạng" })
     // private popupRank: Node = null;
     // @property({ type: Node, tooltip: "Lịch sử" })
@@ -33,9 +33,9 @@ export class UIControler extends Component {
         this.onClose();
 
         switch (str) {
-            // case `info`:
-            //     this.popupInfo.active = true;
-            //     break;
+            case `info`:
+                this.popupInfo.active = true;
+                break;
             // case `rank`:
             //     this.popupRank.active = true;
             //     this.popupRank.getComponent(PopupRank).initRankingList();
@@ -63,7 +63,7 @@ export class UIControler extends Component {
     }
 
     onClose() {
-        // this.popupInfo.active = false;
+        this.popupInfo.active = false;
         // this.popupRank.active = false;
         // this.popupHistory.active = false;
         this.popupSettingLevel.active = false;
